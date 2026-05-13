@@ -3,22 +3,903 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Test Formspree</title>
+  <title>Міні‑бриф для сайту розборки</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-soft: #dbeafe;
+      --accent: #0d9488;
+      --bg: #0f172a;
+      --card-bg: #020617;
+      --border-subtle: #1e293b;
+      --text-main: #e5e7eb;
+      --text-soft: #9ca3af;
+      --danger: #ef4444;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #0f172a, #020617);
+      color: var(--text-main);
+      min-height: 100vh;
+      margin: 0;
+      padding: 16px 8px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 880px;
+      margin: 0 auto;
+      background: linear-gradient(145deg, #020617 0%, #020617 55%, #0f172a 100%);
+      border-radius: 18px;
+      padding: 20px 18px 24px;
+      box-shadow:
+        0 18px 45px rgba(0,0,0,0.6),
+        0 0 0 1px rgba(15,23,42,0.9);
+      border: 1px solid rgba(148,163,184,0.18);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .container::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at top left, rgba(37,99,235,0.16), transparent 60%),
+        radial-gradient(circle at bottom right, rgba(13,148,136,0.12), transparent 55%);
+      mix-blend-mode: screen;
+    }
+
+    h1 {
+      font-size: 20px;
+      margin: 0 0 4px;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    h1 span.badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(37,99,235,0.16);
+      border: 1px solid rgba(59,130,246,0.5);
+      color: #bfdbfe;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--text-soft);
+      margin-bottom: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .step-indicator {
+      font-size: 13px;
+      color: #cbd5f5;
+    }
+
+    .step-chips {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      font-size: 11px;
+    }
+
+    .chip {
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.45);
+      color: var(--text-soft);
+      background: rgba(15,23,42,0.8);
+      backdrop-filter: blur(10px);
+    }
+
+    .chip.active {
+      border-color: rgba(59,130,246,0.9);
+      background: radial-gradient(circle at top, rgba(59,130,246,0.4), rgba(15,23,42,0.9));
+      color: #dbeafe;
+    }
+
+    .progress-bar {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.9);
+      border: 1px solid rgba(30,64,175,0.6);
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+
+    .progress-inner {
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #22c55e, #38bdf8, #6366f1);
+      box-shadow: 0 0 12px rgba(56,189,248,0.8);
+      transition: width 0.25s ease-out;
+    }
+
+    .steps-wrapper {
+      position: relative;
+      z-index: 1;
+      margin-top: 6px;
+    }
+
+    .step {
+      display: none;
+      animation: fade .22s ease-in-out;
+    }
+    .step.active {
+      display: block;
+    }
+
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .block-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #e5e7eb;
+    }
+
+    .question {
+      margin-bottom: 16px;
+    }
+    .question label {
+      font-weight: 500;
+      display: block;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+    small {
+      display: block;
+      color: var(--text-soft);
+      margin-bottom: 4px;
+      font-size: 12px;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(148,163,184,0.4);
+      font-size: 14px;
+      font-family: inherit;
+      background: rgba(15,23,42,0.9);
+      color: var(--text-main);
+      outline: none;
+    }
+    input[type="text"]:focus,
+    textarea:focus {
+      border-color: rgba(59,130,246,0.9);
+      box-shadow: 0 0 0 1px rgba(59,130,246,0.5);
+    }
+
+    textarea {
+      min-height: 64px;
+      resize: vertical;
+    }
+
+    .options {
+      margin-top: 4px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      background: rgba(15,23,42,0.7);
+      border: 1px dashed rgba(51,65,85,0.8);
+    }
+
+    .options label {
+      font-weight: 400;
+      display: block;
+      margin-bottom: 3px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    input[type="checkbox"],
+    input[type="radio"] {
+      accent-color: #60a5fa;
+      margin-right: 5px;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 9px 20px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    #prevBtn {
+      background: rgba(15,23,42,0.9);
+      color: var(--text-soft);
+      border: 1px solid rgba(148,163,184,0.5);
+    }
+    #prevBtn:hover {
+      background: rgba(30,64,175,0.3);
+    }
+
+    #nextBtn {
+      background: linear-gradient(135deg, #2563eb, #0ea5e9);
+      color: #e5e7eb;
+      box-shadow: 0 10px 24px rgba(37,99,235,0.45);
+    }
+    #nextBtn:hover {
+      filter: brightness(1.05);
+    }
+
+    #summary {
+      min-height: 260px;
+      font-family: "SF Mono", Menlo, Monaco, Consolas, "Courier New", monospace;
+      font-size: 13px;
+      white-space: pre-wrap;
+    }
+
+    .required-mark {
+      color: #f97373;
+      font-weight: 600;
+      margin-left: 2px;
+    }
+
+    .error-message {
+      margin-top: 4px;
+      font-size: 12px;
+      color: var(--danger);
+      display: none;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 12px 6px;
+      }
+
+      .container {
+        padding: 16px 12px 20px;
+        border-radius: 16px;
+      }
+      .top-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .step-chips {
+        flex-wrap: wrap;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 10px 4px;
+      }
+
+      .container {
+        margin: 0 auto;
+        padding: 14px 10px 18px;
+        border-radius: 14px;
+      }
+
+      h1 {
+        font-size: 18px;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .subtitle {
+        font-size: 13px;
+      }
+
+      .step-indicator {
+        font-size: 12px;
+      }
+
+      .chip {
+        font-size: 11px;
+        padding: 3px 8px;
+      }
+
+      .question label {
+        font-size: 14px;
+      }
+
+      small,
+      .options label,
+      input[type="text"],
+      textarea {
+        font-size: 15px;
+      }
+
+      button {
+        font-size: 15px;
+        padding: 9px 18px;
+      }
+    }
+
+    /* Модальне вікно успіху */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+
+    .modal-content {
+      background: #020617;
+      border-radius: 14px;
+      padding: 20px 22px;
+      max-width: 360px;
+      width: 100%;
+      border: 1px solid rgba(148,163,184,0.4);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.7);
+      text-align: left;
+    }
+
+    .modal-content h2 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+
+    .modal-content p {
+      margin: 0 0 16px;
+      font-size: 14px;
+      color: var(--text-soft);
+    }
+
+    #closeModalBtn {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #e5e7eb;
+      border: none;
+      border-radius: 999px;
+      padding: 8px 18px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    #closeModalBtn:hover {
+      filter: brightness(1.05);
+    }
+  </style>
 </head>
 <body>
-  <h1>Тест Formspree</h1>
-  <form action="https://formspree.io/f/mkoyeoyj" method="POST">
-    <label>
-      Ваш email:
-      <input type="email" name="email" required>
-    </label>
-    <br><br>
-    <label>
-      Повідомлення:
-      <textarea name="message" required></textarea>
-    </label>
-    <br><br>
-    <button type="submit">Відправити</button>
+  <div class="container">
+    <h1>
+      Міні‑бриф для сайту
+      <span class="badge">для розборки / запчастин</span>
+    </h1>
+    <p class="subtitle">
+      Заповніть по кроках. Всі питання важливі – в кінці отримаєте готовий текст, який автоматично прилетить розробнику на пошту.
+    </p>
+
+    <div class="top-row">
+      <div class="step-indicator" id="stepIndicator"></div>
+      <div class="step-chips">
+        <span class="chip" data-chip="1">Бізнес</span>
+        <span class="chip" data-chip="2">Каталог</span>
+        <span class="chip" data-chip="3">Доставка</span>
+        <span class="chip" data-chip="4">Точки та контакти</span>
+        <span class="chip" data-chip="5">Підсумок</span>
+      </div>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-inner" id="progressInner"></div>
+    </div>
+
+    <div class="steps-wrapper">
+
+      <!-- Крок 1 -->
+      <div class="step active" data-step="1">
+        <div class="block-title">Блок 1. Про бізнес</div>
+
+        <div class="question" data-required="true">
+          <label for="businessName">
+            1. Як коротко називається ваш бізнес?<span class="required-mark">*</span>
+          </label>
+          <small>Напишіть назву. Якщо її ще немає, так і напишіть – ми придумаємо варіант.</small>
+          <input type="text" id="businessName" placeholder="Наприклад: Rozborka, або напишіть що назви немає" />
+          <div class="error-message">Напишіть назву або вкажіть, що назви ще немає.</div>
+        </div>
+
+        <div class="question" data-required="true">
+          <label>2. Чим ви займаєтесь?<span class="required-mark">*</span></label>
+          <small>Можна обрати кілька варіантів.</small>
+          <div class="options" data-name="whatDo">
+            <label><input type="checkbox" name="whatDo" value="Розбираємо транспорт" /> Розбираємо транспорт</label>
+            <label><input type="checkbox" name="whatDo" value="Продаємо б/у деталі" /> Продаємо б/у деталі</label>
+            <label><input type="checkbox" name="whatDo" value="Продаємо нові деталі" /> Продаємо нові деталі</label>
+            <label><input type="checkbox" name="whatDo" value="Шукаємо деталі під замовлення" /> Шукаємо деталі під замовлення</label>
+            <label><input type="checkbox" name="whatDo" value="Відправляємо по всій Україні" /> Відправляємо по всій Україні</label>
+            <label><input type="checkbox" name="whatDo" value="Маємо склад / майданчик" /> Маємо склад / майданчик</label>
+            <label><input type="checkbox" name="whatDo" value="Інше" /> Інше (дописати нижче)</label>
+          </div>
+          <textarea id="whatDoExtra" placeholder="Якщо потрібно, допишіть свої варіанти."></textarea>
+          <div class="error-message">Оберіть хоча б один варіант.</div>
+        </div>
+
+        <div class="question" data-required="true">
+          <label>3. Що для вас найважливіше від сайту?<span class="required-mark">*</span></label>
+          <div class="options" data-name="siteGoal">
+            <label><input type="checkbox" name="siteGoal" value="Щоб люди дзвонили і писали" /> Щоб люди дзвонили і писали</label>
+            <label><input type="checkbox" name="siteGoal" value="Щоб люди швидко знаходили потрібну деталь" /> Щоб люди швидко знаходили потрібну деталь</label>
+            <label><input type="checkbox" name="siteGoal" value="Щоб показати асортимент і серйозність бізнесу" /> Щоб показати асортимент і серйозність бізнесу</label>
+            <label><input type="checkbox" name="siteGoal" value="Щоб отримувати заявки" /> Щоб отримувати заявки</label>
+            <label><input type="checkbox" name="siteGoal" value="Інше" /> Інше (дописати нижче)</label>
+          </div>
+          <textarea id="siteGoalExtra" placeholder="Якщо є інші побажання до сайту, напишіть тут."></textarea>
+          <div class="error-message">Оберіть хоча б один варіант.</div>
+        </div>
+      </div>
+
+      <!-- Крок 2 -->
+      <div class="step" data-step="2">
+        <div class="block-title">Блок 2. Каталог і деталі</div>
+
+        <div class="question" data-required="true">
+          <label>4. Який транспорт у вас буває найчастіше?<span class="required-mark">*</span></label>
+          <div class="options" data-name="transport">
+            <label><input type="checkbox" name="transport" value="Вантажівки" /> Вантажівки</label>
+            <label><input type="checkbox" name="transport" value="Автобуси" /> Автобуси</label>
+            <label><input type="checkbox" name="transport" value="Мікроавтобуси" /> Мікроавтобуси</label>
+            <label><input type="checkbox" name="transport" value="Легкові авто" /> Легкові авто</label>
+            <label><input type="checkbox" name="transport" value="Спецтехніка" /> Спецтехніка</label>
+            <label><input type="checkbox" name="transport" value="Причепи / напівпричепи" /> Причепи / напівпричепи</label>
+            <label><input type="checkbox" name="transport" value="Інше" /> Інше (дописати нижче)</label>
+          </div>
+          <textarea id="transportExtra" placeholder="Якщо є інші варіанти, напишіть тут."></textarea>
+          <div class="error-message">Оберіть хоча б один варіант.</div>
+        </div>
+
+        <div class="question" data-required="true">
+          <label for="brands">
+            5. З якими марками працюєте найчастіше?<span class="required-mark">*</span>
+          </label>
+          <small>Напишіть основні марки, які для вас головні.</small>
+          <textarea id="brands" placeholder="Наприклад: MAN, DAF, Volvo, Mercedes..."></textarea>
+          <div class="error-message">Напишіть хоча б кілька основних марок.</div>
+        </div>
+
+        <div class="question" data-required="true">
+          <label>6. Які деталі найчастіше шукають або купують?<span class="required-mark">*</span></label>
+          <div class="options" data-name="parts">
+            <label><input type="checkbox" name="parts" value="Двигун" /> Двигун</label>
+            <label><input type="checkbox" name="parts" value="КПП / коробка" /> КПП / коробка</label>
+            <label><input type="checkbox" name="parts" value="Кузовні деталі" /> Кузовні деталі</label>
+            <label><input type="checkbox" name="parts" value="Фари / оптика" /> Фари / оптика</label>
+            <label><input type="checkbox" name="parts" value="Салон" /> Салон</label>
+            <label><input type="checkbox" name="parts" value="Ходова" /> Ходова</label>
+            <label><input type="checkbox" name="parts" value="Електрика" /> Електрика</label>
+            <label><input type="checkbox" name="parts" value="Двері / капот / бампер" /> Двері / капот / бампер</label>
+            <label><input type="checkbox" name="parts" value="Інше" /> Інше (дописати нижче)</label>
+          </div>
+          <textarea id="partsExtra" placeholder="Якщо є інші популярні групи деталей, напишіть тут."></textarea>
+          <div class="error-message">Оберіть хоча б один варіант.</div>
+        </div>
+      </div>
+
+      <!-- Крок 3 -->
+      <div class="step" data-step="3">
+        <div class="block-title">Блок 3. Доставка, оплата, гарантії</div>
+
+        <div class="question" data-required="true">
+          <label>7. По якій території ви відправляєте деталі?<span class="required-mark">*</span></label>
+          <div class="options">
+            <label><input type="radio" name="deliveryArea" value="По всій Україні" checked /> По всій Україні</label>
+            <label><input type="radio" name="deliveryArea" value="Інше" /> Інше (написати нижче)</label>
+          </div>
+          <textarea id="deliveryAreaExtra" placeholder="Якщо не по всій Україні, напишіть куди."></textarea>
+          <div class="error-message">Оберіть варіант і, за потреби, допишіть деталі.</div>
+        </div>
+
+        <div class="question" data-required="true">
+          <label>8. Чим ви зазвичай відправляєте?<span class="required-mark">*</span></label>
+          <div class="options" data-name="deliveryType">
+            <label><input type="checkbox" name="deliveryType" value="Нова пошта, у відділення" /> Нова пошта, у відділення</label>
+            <label><input type="checkbox" name="deliveryType" value="Нова пошта, кур’єром" /> Нова пошта, кур’єром</label>
+            <label><input type="checkbox" name="deliveryType" value="Укрпошта" /> Укрпошта</label>
+            <label><input type="checkbox" name="deliveryType" value="Інший перевізник" /> Інший перевізник (написати нижче)</label>
+            <label><input type="checkbox" name="deliveryType" value="Самовивіз" /> Самовивіз від нас</label>
+          </div>
+          <textarea id="deliveryTypeExtra" placeholder="Якщо користуєтесь іншими перевізниками, напишіть яких."></textarea>
+          <div class="error-message">Оберіть хоча б один варіант.</div>
+        </div>
+
+        <div class="question" data-required="true">
+          <label>9. Як клієнту краще оплачувати?<span class="required-mark">*</span></label>
+          <small>Онлайн‑оплати на сайті не робимо, оплата відбувається окремо.</small>
+          <div class="options" data-name="payment">
+            <label><input type="checkbox" name="payment" value="Передоплата на картку" /> Передоплата на картку</label>
+            <label><input type="checkbox" name="payment" value="Оплата при отриманні (накладений платіж)" /> Оплата при отриманні посилки (накладений платіж)</label>
+            <label><input type="checkbox" name="payment" value="Готівка при самовивозі" /> Готівка при самовивозі</label>
+            <label><input type="checkbox" name="payment" value="Інше" /> Інше (дописати нижче)</label>
+          </div>
+          <textarea id="paymentExtra" placeholder="Якщо є інші варіанти оплати, напишіть тут."></textarea>
+          <div class="error-message">Оберіть хоча б один варіант.</div>
+        </div>
+
+        <div class="question" data-required="true">
+          <label>10. Чи є у вас якась гарантія або можливість повернення деталі?<span class="required-mark">*</span></label>
+          <small>Щоб ми правильно це написали на сайті.</small>
+          <div class="options">
+            <label><input type="radio" name="warranty" value="Без гарантії, як є" /> Без гарантії, як є</label>
+            <label><input type="radio" name="warranty" value="Перевірка при отриманні" /> Можна перевірити при отриманні, якщо не підходить – не забирати</label>
+            <label><input type="radio" name="warranty" value="Гарантія на певну кількість днів" /> Даємо гарантію на певну кількість днів</label>
+            <label><input type="radio" name="warranty" value="Інше" /> Інше (написати нижче)</label>
+          </div>
+          <textarea id="warrantyExtra" placeholder="Якщо є конкретний строк гарантії або свої умови, напишіть тут."></textarea>
+          <div class="error-message">Оберіть варіант і, за потреби, допишіть деталі.</div>
+        </div>
+      </div>
+
+      <!-- Крок 4 -->
+      <div class="step" data-step="4">
+        <div class="block-title">Блок 4. Точки, контакти, майданчики</div>
+
+        <div class="question" data-required="true">
+          <label for="cities">
+            11. У яких містах у вас є точки або склади?<span class="required-mark">*</span>
+          </label>
+          <textarea id="cities" placeholder="Напишіть міста і, якщо можна, коротко адреси або орієнтири."></textarea>
+          <div class="error-message">Напишіть хоча б міста.</div>
+        </div>
+
+        <div class="question" data-required="true">
+          <label>12. Коли до вас можна приїхати на точку?<span class="required-mark">*</span></label>
+          <small>Можна обрати один або два варіанти.</small>
+          <div class="options" data-name="visitTime">
+            <label><input type="checkbox" name="visitTime" value="Приїзд за домовленістю (попередній дзвінок)" /> Приїзд за домовленістю (попередній дзвінок)</label>
+            <label><input type="checkbox" name="visitTime" value="Є фіксований графік" /> Є фіксований графік (написати нижче)</label>
+          </div>
+          <textarea id="visitTimeExtra" placeholder="Якщо є фіксований графік, напишіть дні та години."></textarea>
+          <div class="error-message">Оберіть хоча б один варіант.</div>
+        </div>
+
+        <div class="question" data-required="true">
+          <label>13. Як люди зараз найчастіше до вас звертаються?<span class="required-mark">*</span></label>
+          <div class="options" data-name="currentContact">
+            <label><input type="checkbox" name="currentContact" value="Телефон" /> Телефон</label>
+            <label><input type="checkbox" name="currentContact" value="Viber" /> Viber</label>
+            <label><input type="checkbox" name="currentContact" value="Telegram" /> Telegram</label>
+            <label><input type="checkbox" name="currentContact" value="WhatsApp" /> WhatsApp</label>
+            <label><input type="checkbox" name="currentContact" value="Facebook Messenger" /> Facebook Messenger</label>
+            <label><input type="checkbox" name="currentContact" value="Instagram Direct" /> Instagram Direct</label>
+            <label><input type="checkbox" name="currentContact" value="Інше" /> Інше (написати нижче)</label>
+          </div>
+          <textarea id="currentContactExtra" placeholder="Якщо є інші варіанти, напишіть тут."></textarea>
+          <div class="error-message">Оберіть хоча б один варіант.</div>
+        </div>
+
+        <div class="question" data-required="true">
+          <label>14. Як вам краще, щоб клієнт зв’язувався з сайту?<span class="required-mark">*</span></label>
+          <div class="options" data-name="preferredContact">
+            <label><input type="checkbox" name="preferredContact" value="Подзвонити по телефону" /> Подзвонити по телефону</label>
+            <label><input type="checkbox" name="preferredContact" value="Написати в Viber" /> Написати в Viber</label>
+            <label><input type="checkbox" name="preferredContact" value="Написати в Telegram" /> Написати в Telegram</label>
+            <label><input type="checkbox" name="preferredContact" value="Написати в WhatsApp" /> Написати в WhatsApp</label>
+            <label><input type="checkbox" name="preferredContact" value="Залишити номер у формі" /> Залишити номер у формі “ми вам передзвонимо”</label>
+            <label><input type="checkbox" name="preferredContact" value="Інше" /> Інше (написати нижче)</label>
+          </div>
+          <textarea id="preferredContactExtra" placeholder="Якщо є особливі побажання по зв’язку, напишіть тут."></textarea>
+          <div class="error-message">Оберіть хоча б один варіант.</div>
+        </div>
+
+        <div class="question" data-required="true">
+          <label for="platforms">
+            15. Де ви зараз продаєте або виставляєте деталі?<span class="required-mark">*</span>
+          </label>
+          <small>Напишіть, де саме: OLX, Facebook Marketplace, інші.</small>
+          <textarea id="platforms" placeholder="Наприклад: OLX, Facebook Marketplace..."></textarea>
+          <div class="error-message">Напишіть, на яких майданчиках ви продаєте.</div>
+        </div>
+
+        <div class="question">
+          <label for="extra">16. Що нам ще обов’язково треба знати перед стартом?</label>
+          <small>Будь-які побажання або нюанси: “працюємо тільки оптом”, “потрібен акцент на автобусах” тощо.</small>
+          <textarea id="extra"></textarea>
+        </div>
+      </div>
+
+      <!-- Крок 5 -->
+      <div class="step" data-step="5">
+        <div class="block-title">Крок 5. Підсумок</div>
+        <div class="question">
+          <label>Підсумок для відправки</label>
+          <small>Цей текст автоматично прилетить розробнику на email після натискання “Готово”.</small>
+          <textarea id="summary" readonly></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="buttons">
+      <button type="button" id="prevBtn">← Назад</button>
+      <button type="button" id="nextBtn">Далі →</button>
+    </div>
+  </div>
+
+  <!-- Невидима форма для Formspree -->
+  <form id="briefForm"
+        method="POST"
+        action="https://formspree.io/f/xqenjply"
+        style="display:none;">
+    <textarea name="summary" id="hiddenSummary"></textarea>
   </form>
+
+  <!-- Модальне вікно успіху -->
+  <div id="successModal" class="modal">
+    <div class="modal-content">
+      <h2>Дані надіслано розробнику</h2>
+      <p>Дякую! Бриф прилетів на пошту. Якщо щось важливе забули, можна просто дописати в повідомленні.</p>
+      <button type="button" id="closeModalBtn">Закрити</button>
+    </div>
+  </div>
+
+  <script>
+    let currentStep = 1;
+    const totalSteps = 5;
+
+    const stepIndicatorEl = document.getElementById("stepIndicator");
+    const steps = document.querySelectorAll(".step");
+    const chips = document.querySelectorAll(".chip");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const summaryEl = document.getElementById("summary");
+    const progressInner = document.getElementById("progressInner");
+    const successModal = document.getElementById("successModal");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+    const briefForm = document.getElementById("briefForm");
+    const hiddenSummary = document.getElementById("hiddenSummary");
+
+    function showStep(step) {
+      steps.forEach(s => s.classList.remove("active"));
+      const active = document.querySelector('.step[data-step="' + step + '"]');
+      if (active) active.classList.add("active");
+
+      chips.forEach(c => c.classList.toggle("active", Number(c.dataset.chip) === step));
+
+      stepIndicatorEl.textContent = "Крок " + step + " з " + totalSteps;
+      const progress = ((step - 1) / (totalSteps - 1)) * 100;
+      progressInner.style.width = progress + "%";
+
+      prevBtn.style.visibility = step === 1 ? "hidden" : "visible";
+      nextBtn.textContent = step === totalSteps ? "Готово" : "Далі →";
+
+      if (step === totalSteps) {
+        buildSummary();
+      }
+
+      const container = document.querySelector(".container");
+      if (container) {
+        const top = container.offsetTop - 8;
+        window.scrollTo({ top, behavior: "smooth" });
+      }
+    }
+
+    function getCheckedValues(name) {
+      return Array.from(document.querySelectorAll('input[name="' + name + '"]:checked'))
+        .map(el => el.value);
+    }
+
+    function validateStep(step) {
+      let valid = true;
+      const stepEl = document.querySelector('.step[data-step="' + step + '"]');
+      if (!stepEl) return true;
+
+      stepEl.querySelectorAll(".error-message").forEach(e => e.style.display = "none");
+
+      const questions = stepEl.querySelectorAll('.question[data-required="true"]');
+      questions.forEach(q => {
+        const textInput = q.querySelector("input[type=text]");
+        const textarea = q.querySelector("textarea");
+        const checkGroup = q.querySelector(".options[data-name]");
+        const radios = q.querySelectorAll('input[type="radio"]');
+        let ok = true;
+
+        if (checkGroup) {
+          const name = checkGroup.getAttribute("data-name");
+          const checked = getCheckedValues(name);
+          if (!checked.length) ok = false;
+        } else if (radios.length) {
+          const name = radios[0].name;
+          const checkedRadio = document.querySelector('input[name="' + name + '"]:checked');
+          if (!checkedRadio) ok = false;
+        } else {
+          const control = textInput || textarea;
+          if (control && !control.value.trim()) ok = false;
+        }
+
+        if (!ok) {
+          valid = false;
+          const err = q.querySelector(".error-message");
+          if (err) err.style.display = "block";
+        }
+      });
+
+      return valid;
+    }
+
+    function buildSummary() {
+      const businessName = document.getElementById("businessName").value.trim();
+      const whatDo = getCheckedValues("whatDo");
+      const whatDoExtra = document.getElementById("whatDoExtra").value.trim();
+      const siteGoal = getCheckedValues("siteGoal");
+      const siteGoalExtra = document.getElementById("siteGoalExtra").value.trim();
+
+      const transport = getCheckedValues("transport");
+      const transportExtra = document.getElementById("transportExtra").value.trim();
+      const brands = document.getElementById("brands").value.trim();
+      const parts = getCheckedValues("parts");
+      const partsExtra = document.getElementById("partsExtra").value.trim();
+
+      const deliveryArea = document.querySelector('input[name="deliveryArea"]:checked')?.value || "";
+      const deliveryAreaExtra = document.getElementById("deliveryAreaExtra").value.trim();
+      const deliveryType = getCheckedValues("deliveryType");
+      const deliveryTypeExtra = document.getElementById("deliveryTypeExtra").value.trim();
+      const payment = getCheckedValues("payment");
+      const paymentExtra = document.getElementById("paymentExtra").value.trim();
+      const warranty = document.querySelector('input[name="warranty"]:checked')?.value || "";
+      const warrantyExtra = document.getElementById("warrantyExtra").value.trim();
+
+      const cities = document.getElementById("cities").value.trim();
+      const visitTime = getCheckedValues("visitTime");
+      const visitTimeExtra = document.getElementById("visitTimeExtra").value.trim();
+      const currentContact = getCheckedValues("currentContact");
+      const currentContactExtra = document.getElementById("currentContactExtra").value.trim();
+      const preferredContact = getCheckedValues("preferredContact");
+      const preferredContactExtra = document.getElementById("preferredContactExtra").value.trim();
+      const platforms = document.getElementById("platforms").value.trim();
+      const extra = document.getElementById("extra").value.trim();
+
+      let text = "";
+
+      text += "Назва бізнесу:\n" + (businessName || "-") + "\n\n";
+
+      text += "Чим займаємось:\n";
+      if (whatDo.length) text += "- " + whatDo.join(", ") + "\n";
+      if (whatDoExtra) text += whatDoExtra + "\n";
+      text += "\n";
+
+      text += "Що для нас найважливіше від сайту:\n";
+      if (siteGoal.length) text += "- " + siteGoal.join(", ") + "\n";
+      if (siteGoalExtra) text += siteGoalExtra + "\n";
+      text += "\n";
+
+      text += "Транспорт, з яким працюємо найчастіше:\n";
+      if (transport.length) text += "- " + transport.join(", ") + "\n";
+      if (transportExtra) text += transportExtra + "\n";
+      text += "\n";
+
+      text += "Основні марки, з якими працюємо:\n";
+      text += (brands || "-") + "\n\n";
+
+      text += "Найпопулярніші групи деталей:\n";
+      if (parts.length) text += "- " + parts.join(", ") + "\n";
+      if (partsExtra) text += partsExtra + "\n";
+      text += "\n";
+
+      text += "Територія доставки:\n";
+      text += deliveryArea || "-";
+      if (deliveryAreaExtra) text += " (" + deliveryAreaExtra + ")";
+      text += "\n\n";
+
+      text += "Чим відправляємо:\n";
+      if (deliveryType.length) text += "- " + deliveryType.join(", ") + "\n";
+      if (deliveryTypeExtra) text += deliveryTypeExtra + "\n";
+      text += "\n";
+
+      text += "Як клієнт оплачує:\n";
+      if (payment.length) text += "- " + payment.join(", ") + "\n";
+      if (paymentExtra) text += paymentExtra + "\n";
+      text += "\n";
+
+      text += "Гарантія / повернення:\n";
+      text += (warranty || "-") + "\n";
+      if (warrantyExtra) text += warrantyExtra + "\n";
+      text += "\n";
+
+      text += "Міста та точки / склади:\n";
+      text += (cities || "-") + "\n\n";
+
+      text += "Коли можна приїхати на точку:\n";
+      if (visitTime.length) text += "- " + visitTime.join(", ") + "\n";
+      if (visitTimeExtra) text += visitTimeExtra + "\n";
+      text += "\n";
+
+      text += "Як люди зараз найчастіше звертаються:\n";
+      if (currentContact.length) text += "- " + currentContact.join(", ") + "\n";
+      if (currentContactExtra) text += currentContactExtra + "\n";
+      text += "\n";
+
+      text += "Як нам краще, щоб клієнт зв’язувався з сайту:\n";
+      if (preferredContact.length) text += "- " + preferredContact.join(", ") + "\n";
+      if (preferredContactExtra) text += preferredContactExtra + "\n";
+      text += "\n";
+
+      text += "Майданчики, де зараз продаємо / виставляємо деталі:\n";
+      text += (platforms || "-") + "\n\n";
+
+      text += "Додаткові важливі моменти:\n";
+      text += (extra || "-") + "\n";
+
+      summaryEl.value = text;
+    }
+
+    prevBtn.addEventListener("click", function () {
+      if (currentStep > 1) {
+        currentStep--;
+        showStep(currentStep);
+      }
+    });
+
+    nextBtn.addEventListener("click", function () {
+      if (currentStep < totalSteps) {
+        if (!validateStep(currentStep)) return;
+        currentStep++;
+        showStep(currentStep);
+      } else {
+        const summaryText = summaryEl.value.trim();
+        if (!summaryText) {
+          alert("Немає тексту для відправки.");
+          return;
+        }
+
+        hiddenSummary.value = summaryText;
+        briefForm.submit();
+      }
+    });
+
+    if (closeModalBtn) {
+      closeModalBtn.addEventListener("click", () => {
+        successModal.style.display = "none";
+      });
+    }
+
+    showStep(currentStep);
+  </script>
 </body>
 </html>
